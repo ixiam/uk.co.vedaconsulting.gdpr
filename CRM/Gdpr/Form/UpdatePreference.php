@@ -29,9 +29,15 @@ class CRM_Gdpr_Form_UpdatePreference extends CRM_Core_Form {
     $this->_cid = $this->getContactID();
 
     //Do not allow anon users to update unless have a valid checksum
-    if(empty($this->_cid)){
-      //Do Nothing for now
+    $cid = CRM_Utils_Request::retrieve('cid', 'Integer', $this);
+    $cs = CRM_Utils_Request::retrieve('cs', 'String', $this);
+    if(CRM_Contact_BAO_Contact_Utils::validChecksum($cid, $cs)) {
+      $this->_cid = $cid;
     }
+    else {      
+      CRM_Contact_BAO_Contact_Permission::validateChecksumContact($cid,$this, TRUE);
+    }
+
 
     //Add Gdpr CSS file
     CRM_Core_Resources::singleton()->addStyleFile('uk.co.vedaconsulting.gdpr', 'css/gdpr.css');
